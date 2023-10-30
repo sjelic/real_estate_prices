@@ -1,0 +1,195 @@
+\documentclass{article}
+
+
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{biblatex}
+
+
+
+\addbibresource{refs.bib}
+
+
+\graphicspath{ {./images/} }
+
+
+\title{An overview of regression methods for real estate price prediction problem with interaction variables}
+
+
+\author{
+ Branislav Bajat \\
+  Faculty of Civil Engineering\\
+  University of Belgrade\\
+  Bulevar Kralja Aleksandra 73,\\
+  11000 Belgrade, Serbia\\
+  \texttt{branislav.bajat@grf.bg.ac.rs} \\
+  %% examples of more authors
+  \And
+  Slobodan Jelić \\
+  Faculty of Civil Engineering\\
+  University of Belgrade\\
+  Bulevar Kralja Aleksandra 73,\\
+  11000 Belgrade, Serbia\\
+  \texttt{slobodan.jelic@grf.bg.ac.rs} \\
+\And
+Milutin Pejović \\
+Faculty of Civil Engineering\\
+University of Belgrade\\
+Bulevar Kralja Aleksandra 73,\\
+11000 Belgrade, Serbia\\
+\texttt{milutin.pejovic@grf.bg.ac.rs} \\
+  %% \AND
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+In this paper we evaluate linear regression models for real estate price prediction on dataset 
+\end{abstract}
+
+
+% keywords can be removed
+%\keywords{First keyword \and Second keyword \and More}
+\section{Introduction}
+Although deep learning techniques have developed rapidly in the last decade, the application of linear methods in domains where predictors can be selected directly from the feature space remains challenging. The main goal of this paper is to provide an overview and explore the limitations of linear regression methods for real estate price prediction. Linear methods are simple and informative and provide better insight into the dependence of the target on the covariates. Statistical tests for significance of coefficients and estimation of confidence intervals can be performed for these methods.
+\section{Data}
+
+  \begin{table}[!ht]
+    \caption{Sample table title}
+     \centering
+     \begin{longtable}{p{0.2\textwidth}p{0.3\textwidth}p{0.15\textwidth}p{0.07\textwidth}p{0.08\textwidth}p{0.1\textwidth}}
+       \toprule
+       \textbf{Variable}  & \textbf{Description}     & \textbf{Group} & \textbf{Type} \\
+       \midrule
+        dist\_airport & Prox. (Euclidian distance) to airport & accessability & float \\
+        dist\_highway\_entr & Prox. to highway entrance & accessability & float \\
+        dist\_main\_roads & Prox. to main city roads & accessability & float \\
+        dist\_public\_transport & Prox. to city bus station & accessability & float \\
+        dist\_recreation & Prox. to green areas, forest & accessability & float \\
+        dist\_regional\_roads & Prox. to regional roads & accessability & float \\
+        dist\_river & Prox. to river banks & accessability & float \\
+        dist\_schools & Prox. to university facilities & accessability & float \\
+        construct\_age & Number of days after construction & age & float \\
+        facade\_age & Number of days after the facade reconstruction & age & float \\
+        inst\_age & Number of days after the instalation replacement & age & float \\
+        roof\_age & Number of days after the roof reconstruction & age & float \\
+        windows\_age & Number of days after the windows replacement & age & float \\
+        dist\_highway & Prox. to highway lane & environmental & float \\
+        dist\_railway & Prox. to railway & environmental & float \\
+        elevation & Elevation above sea level & environmental & float \\
+        easting & E coordinate (mathematical) & neighborhood & float \\
+        id\_building & Building ID within cadas. community & neighborhood & int \\
+        id\_cadas\_com & Unique cadastral community ID & neighborhood & int \\
+        northing & N coordinate (mathematical) & neighborhood & float \\
+        constr\_type & Construction type (brick, concrete, wood) & structural & str \\
+        duplex & Duplex - apartment in two floors (Yes/No) & structural & str \\
+        elevator & Elevator (Yes/No) & structural & str \\
+        floor\_above\_ground & Apartment above ground floor & structural & int \\
+        floor\_appartment & Apartment floor number & structural & int \\
+        floor\_entrance & Building entrance floor number & structural & int \\
+        floors\_total & Total number of floors in the building & structural & int \\
+        house\_type & Housing type (single, double, raw) & structural & str \\
+        living\_area & Apartment living area & structural & float \\
+        no\_appart & Number of apartments in building & structural & int \\
+        no\_rooms & Number of rooms in apartment & structural & int \\
+        postion\_type & Position in building (basement, ground, middle, penthouse) & structural & str \\
+        total\_area & Apartment total area & structural & float \\
+        price\_m2 & Price per m2 & target & float \\
+       \bottomrule
+     \end{longtable}
+     \label{tab:table}
+   \end{table}
+
+
+   Authors in \cite{ceh_estimating_2018} report high multicollinearity that might increase the variance of coefficient estimates and makes the model sensitive to small data changes. On the other hand, elastic net approach combines shrinking stratzegies to minimize the variance of coefficient estimates and maximize sparseness at the same time.
+
+
+\section{Models}
+\section{Linear regression}
+A linear regression is a basic method and usual building block of other machine learning algorithms where some random variables $Y$, usually knows as target, is expressed as a linear combination of random variabels $X_i$, $i\in\{1,\ldots, d\}$, known as covariates. In this paper we use linear regression with basis function expansion under the following assumptions:
+
+\begin{itemize}
+  \item target $Y$ is equals linear combination of $X_i$, $i\in\{1,\ldots, d\}$, plus some (random) residual $\varepsilon$ i.e.
+  \begin{equation}
+    Y = \sum_{i=1}^d w_i \phi(X_i) + \varepsilon,
+  \end{equation}
+  \item residual  
+        $$\varepsilon = Y - \sum_{i=1}^d w_iX_i $$
+        is normally distributed with zero mean and constant variance $\sigma^2$, i.e $\varepsilon\sim \mathcal{N}(0,\sigma^2)$
+  
+  
+  where $w_i\in\mathbb{R}$, $i\in\{1,\ldots d\}$, $d\in \mathbb{N}$
+\end{itemize}
+\subsection{Lasso}
+In the case of large number of predictors (i.e. covariates) we want to select the most appropriate subset of feature. LASSO \cite{tibshiraniRegressionShrinkageSelection1996} <(least absolute shrinkage and selection operator) is a regression method where mean squared error and penalized sum of absolute values of regression parameters is minimized
+
+\begin{equation}\label{eq:lasso_obj}
+  \min_{w\in \mathbb{R}^{d+1}} \sum_{i=1}^N(y_i-w_i^Tx_i)^2 + \lambda\sum_{i=1}^{d+1}|w_i|,
+\end{equation}
+
+for some $\lambda>0$.
+
+The solution of \ref{eq:lasso_obj}
+Usually, when we want a sparse solution in case of high dimensional data, lasso regression is applied. Here, we assume that parameters $w_j$, $j\in {0,\ldots, d}$ come from Laplacian zero-mean distribution where the most of probability mass is put around zero. In a such way, we aim to select sperse solution. Based on that idea, estimators for lasso parameters are obrained by solving optimization problem were we want to penalize objective function (i.e. mean squared error) regilarized with the $l_1$-norm of vector of parameters as follows:
+
+
+
+
+This objective loss yields sparse solution where all features with $w_i>0$ are selected. Obviously, this apporach incorporates model selection into regression problem.
+
+\subsection{ElasticNet}
+
+Elastic approach generalizes 
+\section{Results}
+
+\subsection{Model selection}
+In the  previous section we found that the elastic net outperformed other approaches that used regularization and model selection procedures. In the seminal papar of Zou and Hastie elastic net approach is presented as  a new regularization and model selection method. This approach compromises between ridge and lasso regressions, that serve as regularization and model selection approaches. Since lasso tends to select one feature from group of correlated features, elastic net approach tends to include or exclude the entire group of correlated features. Our statistical analysis in this section uses laso as model selection procedure 
+
+\subsection{Statistical analysis of regression coefficients}
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{|l|l|}
+  \hline
+      best\_alpha & 1.9999999999999998 \\
+      test\_mean\_r2 & 0.32257724292143136 \\
+      test\_std\_r2 & 0.014647250999858974 \\
+      test\_mean\_cod & -16.365785033853307 \\
+      test\_std\_cod & 0.356276388948974 \\
+      test\_mean\_mape & -15.177178021189741 \\
+      test\_std\_mape & 0.353036390912289 \\
+  \end{tabular}
+\end{table}
+
+
+\printbibliography
+
+
+
+
+
+\end{document}
