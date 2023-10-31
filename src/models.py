@@ -8,7 +8,10 @@ from scoring import scoring
 from preprocess  import PolynomialFeaturesDF, KBinsDiscretizerWithNames
 np.random.seed(0)
 from preprocess import OneHotEncoderOnlyCategorical, PolynomialFeaturesDF, SparseModelFeatureSelector
-
+import os
+DATA_DIR = './data'
+MODEL_PATH = './models'
+RESULT_PATH = './results'
 
 
 models = {
@@ -32,9 +35,9 @@ models = {
         estimator=make_pipeline(
                 OneHotEncoderOnlyCategorical(),
                 StandardScaler(),
-                linear_model.Ridge(max_iter=10000)
+                linear_model.Ridge(max_iter=1000)
         ),
-        param_grid={'ridge__alpha': list(np.arange(1,3,0.1)) },
+        param_grid={'ridge__alpha': np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))) },
         scoring=scoring,
         refit='r2',
         return_train_score = True,
@@ -49,9 +52,9 @@ models = {
         estimator=make_pipeline(
                 OneHotEncoderOnlyCategorical(),
                 StandardScaler(),
-                linear_model.Lasso(max_iter=10000)
+                linear_model.Lasso(max_iter=1000)
         ),
-        param_grid={'lasso__alpha': list(np.arange(1,3,0.1)) },
+        param_grid={'lasso__alpha': np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))) },
         scoring=scoring,
         refit='r2',
         return_train_score = True,
@@ -64,10 +67,10 @@ models = {
          estimator=make_pipeline(
                 OneHotEncoderOnlyCategorical(),
                 StandardScaler(),
-                linear_model.ElasticNet(max_iter=10000)
+                linear_model.ElasticNet(max_iter=1000)
         ),
-        param_grid={'elasticnet__alpha': list(np.arange(1,20,0.1)),
-                    'elasticnet__l1_ratio': list(np.arange(0.1,1,0.1))},
+        param_grid={'elasticnet__alpha': np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
+                    'elasticnet__l1_ratio':  np.arange(0,1.1,0.1)},
         scoring=scoring,
         refit='r2',
         return_train_score = True,
@@ -101,20 +104,22 @@ models = {
         )
     },
     'Polynomial Regression' : {
-        'preprocessing_pipline': make_pipeline(
-            
-        ),
         'fitting_pipline': GridSearchCV(
         estimator=make_pipeline(
             KBinsDiscretizerWithNames(
                             encode='onehot-dense',
                             random_state=0),
             OneHotEncoderOnlyCategorical(),
-            PolynomialFeaturesDF(degree = 2, interaction_only=True, include_bias = False),
+            PolynomialFeaturesDF(interaction_only=True, include_bias = False),
             StandardScaler(),
             linear_model.LinearRegression()
         ),
-        param_grid={},
+        param_grid={
+            "ridge__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
+            "kbinsdiscretizerwithnames__n_bins": np.arange(2, 10),
+            "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans'],
+            "polynomialfeaturesdf__degree" : [2,3]
+        },
         scoring=scoring,
         refit='r2',
         return_train_score = True,
@@ -129,11 +134,14 @@ models = {
                             encode='onehot-dense',
                             random_state=0),
                 OneHotEncoderOnlyCategorical(),
-                PolynomialFeaturesDF(degree = 2, interaction_only=True, include_bias = False),
+                PolynomialFeaturesDF(interaction_only=True, include_bias = False),
                 StandardScaler(),
-                linear_model.Ridge(max_iter=10000)
+                linear_model.Ridge(max_iter=1000)
         ),
-         param_grid={'ridge__alpha': list(np.arange(18,30,0.2)) },
+         param_grid={"ridge__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
+            "kbinsdiscretizerwithnames__n_bins": np.arange(2, 10),
+            "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans'],
+            "polynomialfeaturesdf__degree" : [2,3]},
         scoring=scoring,
         refit='r2',
         return_train_score = True,
@@ -149,11 +157,15 @@ models = {
                             encode='onehot-dense',
                             random_state=0),
             OneHotEncoderOnlyCategorical(),
-            PolynomialFeaturesDF(degree = 2, interaction_only=True, include_bias = False),
+            PolynomialFeaturesDF(interaction_only=True, include_bias = False),
             StandardScaler(),
-            linear_model.Lasso(max_iter=10000)
+            linear_model.Lasso(max_iter=1000)
         ),
-        param_grid={'lasso__alpha': list(np.arange(1,5,0.1)) },
+        param_grid={"lasso__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,10),
+                    "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans'],
+                    "polynomialfeaturesdf__degree" : [2,3]
+                    },
         scoring=scoring,
         refit='r2',
         return_train_score = True,
@@ -168,12 +180,16 @@ models = {
                             encode='onehot-dense',
                             random_state=0),
             OneHotEncoderOnlyCategorical(),
-            PolynomialFeaturesDF(degree = 2, interaction_only=True, include_bias = False),
+            PolynomialFeaturesDF(interaction_only=True, include_bias = False),
             StandardScaler(),
-            linear_model.ElasticNet(max_iter=10000)
+            linear_model.ElasticNet(max_iter=1000)
         ),
-        param_grid={'elasticnet__alpha': list(np.arange(0.1,2,0.1)),
-                    'elasticnet__l1_ratio': list(np.arange(0.1,1,0.1))},
+        param_grid={"elasticnet__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
+                    "elasticnet__l1_ratio": np.arange(0,1.1,0.1),
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,10),
+                    "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans'],
+                    "polynomialfeaturesdf__degree" : [2,3]
+                    },
         scoring=scoring,
         refit='r2',
         return_train_score = True,
@@ -184,7 +200,6 @@ models = {
     'Kernel Ridge Regression' : {
 
         'fitting_pipline':  GridSearchCV(
-            
         estimator=make_pipeline(
             KBinsDiscretizerWithNames(
                             encode='onehot-dense',
@@ -192,33 +207,17 @@ models = {
             OneHotEncoderOnlyCategorical(),
             StandardScaler(),
             kernel_ridge.KernelRidge(kernel='polynomial')),
-        param_grid={'kernelridge__alpha': list(np.arange(0.1,3,0.1)), 'kernelridge__degree': list(np.arange(2,5,1)) },
+        param_grid={'kernelridge__alpha': list(np.arange(0.1,3,0.1)),
+                    'kernelridge__degree': list(np.arange(2,5,1)),
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,10),
+                    "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans']
+                    },
         scoring=scoring,
         refit='r2',
         return_train_score=True,
         cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
         n_jobs=-1
-        ),
+        )
         
-    },
-    'Linear Regression with Lasso selector': {
-            'preprocessing_pipline': make_pipeline(
-                OneHotEncoderOnlyCategorical(),
-                PolynomialFeaturesDF(degree = 2, interaction_only=True, include_bias = False),
-                SparseModelFeatureSelector(model_file = '/workspaces/workspace/clanci/realestate_prices/models/Lasso_Polynomial_Regression.pickle')
-            ),
-            'fitting_pipline': GridSearchCV(
-                estimator=make_pipeline(
-                    StandardScaler(),
-                    linear_model.ElasticNet(max_iter=1000)
-                ),
-                param_grid={'elasticnet__alpha': list(np.arange(1,5,0.2)),
-                    'elasticnet__l1_ratio': list(np.arange(0.1,1,0.1))},
-                scoring=scoring,
-                refit='r2',
-                return_train_score = True,
-                cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
-                n_jobs=-1
-            )    
-        } 
+    }
 }

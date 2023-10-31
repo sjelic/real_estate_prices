@@ -4,8 +4,13 @@ import models
 from preprocess import TypeConverter
 import pickle
 import sys
+import os
 
-def fit_model(model_name, data_path = '/workspaces/workspace/clanci/realestate_prices/data/hp_ljubljana_new_with_rooms.xlsx', variable_path = './clanci/realestate_prices/data/covariates.xlsx'):
+DATA_DIR = './data'
+MODEL_PATH = './models'
+RESULT_PATH = './results'
+
+def fit_model(model_name, data_path = os.path.join(DATA_DIR,'hp_ljubljana_new_with_rooms.xlsx'), variable_path = os.path.join(DATA_DIR,'covariates.xlsx')):
     variables = pd.read_excel(variable_path)
     data = pd.read_excel(data_path)
     
@@ -35,15 +40,15 @@ def fit_model(model_name, data_path = '/workspaces/workspace/clanci/realestate_p
     return models.models[model_name]['fitting_pipline'].fit(X,y)
 
 
-def fit_and_save_model(model_name, data_path = '/workspaces/workspace/clanci/realestate_prices/data/hp_ljubljana_new_with_rooms.xlsx', variable_path = '/workspaces/workspace/clanci/realestate_prices/data/covariates.xlsx'):
+def fit_and_save_model(model_name, data_path = os.path.join(DATA_DIR,'hp_ljubljana_new_with_rooms.xlsx'), variable_path = os.path.join(DATA_DIR,'covariates.xlsx')):
     gs = fit_model(model_name, data_path, variable_path)
-    with open(f"/workspaces/workspace/clanci/realestate_prices/models/{model_name.replace(' ', '_')}.pickle", 'wb' ) as f:
+    with open(os.path.join(MODEL_PATH,f"{model_name.replace(' ', '_')}.pickle"), 'wb' ) as f:
         pickle.dump(gs,f)
 
-def fit_and_save_all_models(data_path = '/workspaces/workspace/clanci/realestate_prices/data/hp_ljubljana_new_with_rooms.xlsx', variable_path = '/workspaces/workspace/clanci/realestate_prices/data/covariates.xlsx'):
+def fit_and_save_all_models(data_path = os.path.join(DATA_DIR,'hp_ljubljana_new_with_rooms.xlsx'), variable_path = os.path.join(DATA_DIR,'covariates.xlsx')):
     for model_name in models.models:
         gs = fit_model(model_name, data_path, variable_path)
-        with open(f"/workspaces/workspace/clanci/realestate_prices/models/{model_name.replace(' ', '_')}.pickle", 'wb' ) as f:
+        with open(os.path.join(MODEL_PATH,f"{model_name.replace(' ', '_')}.pickle"), 'wb' ) as f:
             pickle.dump(gs,f)
 
 
