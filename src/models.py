@@ -8,6 +8,7 @@ from scoring import scoring
 from preprocess  import PolynomialFeaturesDF, KBinsDiscretizerWithNames, CreateInteractions
 np.random.seed(0)
 from preprocess import OneHotEncoderOnlyCategorical, PolynomialFeaturesDF, SparseModelFeatureSelector
+from sklearn.ensemble import AdaBoostRegressor
 import os
 DATA_DIR = './data'
 MODEL_PATH = './models'
@@ -161,7 +162,7 @@ models = {
                 linear_model.Ridge(max_iter=10000)
         ),
         # 3364
-         param_grid={"ridge__alpha": np.arange(3364,3365,1),
+         param_grid={"ridge__alpha": np.arange(2000,5000,1),
             "kbinsdiscretizerwithnames__n_bins": np.arange(2, 3),
             "kbinsdiscretizerwithnames__strategy": ['quantile']
             },
@@ -198,22 +199,45 @@ models = {
         n_jobs=-1
         )
     },
-    'ElasticNet Polynomial Regression' : {
+    'Lasso Interaction Regression' : 
+    {
         'fitting_pipline':  GridSearchCV(
         estimator=make_pipeline(
             KBinsDiscretizerWithNames(
                             encode='onehot-dense',
                             random_state=0),
             OneHotEncoderOnlyCategorical(),
-            PolynomialFeaturesDF(interaction_only=True, include_bias = False),
+            CreateInteractions(),
+            StandardScaler(),
+            linear_model.Lasso(max_iter=1000)
+        ),
+        param_grid={
+                    "lasso__alpha": np.arange(3,5,0.1),
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,3,1),
+                    "kbinsdiscretizerwithnames__strategy": ['quantile']
+                    },
+        scoring=scoring,
+        refit='r2',
+        return_train_score = True,
+        cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
+        n_jobs=-1
+        )
+    },
+    'ElasticNet Interaction Regression' : {
+        'fitting_pipline':  GridSearchCV(
+        estimator=make_pipeline(
+            KBinsDiscretizerWithNames(
+                            encode='onehot-dense',
+                            random_state=0),
+            OneHotEncoderOnlyCategorical(),
+            CreateInteractions(),
             StandardScaler(),
             linear_model.ElasticNet(max_iter=1000)
         ),
         param_grid={"elasticnet__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
                     "elasticnet__l1_ratio": np.arange(0,1.1,0.1),
-                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,6),
-                    "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans'],
-                    "polynomialfeaturesdf__degree" : [2]
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,3,1),
+                    "kbinsdiscretizerwithnames__strategy": ['quantile']
                     },
         scoring=scoring,
         refit='r2',
@@ -232,14 +256,44 @@ models = {
             OneHotEncoderOnlyCategorical(),
             StandardScaler(),
             kernel_ridge.KernelRidge(kernel='polynomial')),
-        param_grid={'kernelridge__alpha': list(np.arange(0.1,3,0.1)),
-                    'kernelridge__degree': list(np.arange(2,5,1)),
-                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,6),
-                    "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans']
+        param_grid={'kernelridge__alpha': np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
+                    'kernelridge__degree': list(np.arange(1,5,1)),
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,3,1),
+                    "kbinsdiscretizerwithnames__strategy": ['quantile']
                     },
         scoring=scoring,
         refit='r2',
         return_train_score=True,
+        cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
+        n_jobs=-1
+        )
+        
+    },
+    'AdaBoost Lasso Interaction Regression': {
+        'fitting_pipline':  GridSearchCV(
+        estimator=make_pipeline(
+            KBinsDiscretizerWithNames(
+                            encode='onehot-dense',
+                            random_state=0),
+            OneHotEncoderOnlyCategorical(),
+            CreateInteractions(),
+            StandardScaler(),
+            AdaBoostRegressor(
+                estimator=linear_model.Lasso(alpha=4.2, max_iter=1000),
+                random_state = 0
+            )
+        ),
+        param_grid={
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,3,1),
+                    "kbinsdiscretizerwithnames__strategy": ['quantile'],
+                    "adaboostregressor__n_estimators": np.arange(7,8,1),
+                    'adaboostregressor__learning_rate': np.arange(0.005,0.006,0.001),
+                    'adaboostregressor__loss' : ['exponential']
+                    # 'linear', 'square', 
+                    },
+        scoring=scoring,
+        refit='r2',
+        return_train_score = True,
         cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
         n_jobs=-1
         )
