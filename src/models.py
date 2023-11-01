@@ -5,7 +5,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
 from splitter import StratifiedRegressionSplit
 from scoring import scoring
-from preprocess  import PolynomialFeaturesDF, KBinsDiscretizerWithNames
+from preprocess  import PolynomialFeaturesDF, KBinsDiscretizerWithNames, CreateInteractions
 np.random.seed(0)
 from preprocess import OneHotEncoderOnlyCategorical, PolynomialFeaturesDF, SparseModelFeatureSelector
 import os
@@ -115,10 +115,9 @@ models = {
             linear_model.LinearRegression()
         ),
         param_grid={
-            "ridge__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
-            "kbinsdiscretizerwithnames__n_bins": np.arange(2, 10),
+            "kbinsdiscretizerwithnames__n_bins": np.arange(2, 6),
             "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans'],
-            "polynomialfeaturesdf__degree" : [2,3]
+            "polynomialfeaturesdf__degree" : [2]
         },
         scoring=scoring,
         refit='r2',
@@ -136,12 +135,36 @@ models = {
                 OneHotEncoderOnlyCategorical(),
                 PolynomialFeaturesDF(interaction_only=True, include_bias = False),
                 StandardScaler(),
-                linear_model.Ridge(max_iter=1000)
+                linear_model.Ridge(max_iter=10000)
         ),
-         param_grid={"ridge__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
-            "kbinsdiscretizerwithnames__n_bins": np.arange(2, 10),
-            "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans'],
-            "polynomialfeaturesdf__degree" : [2,3]},
+        # 3364
+         param_grid={"ridge__alpha": np.arange(3364,3364,1),
+            "kbinsdiscretizerwithnames__n_bins": np.arange(2, 3),
+            "kbinsdiscretizerwithnames__strategy": ['quantile'],
+            "polynomialfeaturesdf__degree" : [2]},
+        scoring=scoring,
+        refit='r2',
+        return_train_score = True,
+        cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
+        n_jobs=-1
+        )
+    },
+     'Ridge Interaction Regression' : {
+        'fitting_pipline':  GridSearchCV(
+        estimator=make_pipeline(
+                KBinsDiscretizerWithNames(
+                            encode='onehot-dense',
+                            random_state=0),
+                OneHotEncoderOnlyCategorical(),
+                CreateInteractions(),
+                StandardScaler(),
+                linear_model.Ridge(max_iter=10000)
+        ),
+        # 3364
+         param_grid={"ridge__alpha": np.arange(3364,3365,1),
+            "kbinsdiscretizerwithnames__n_bins": np.arange(2, 3),
+            "kbinsdiscretizerwithnames__strategy": ['quantile']
+            },
         scoring=scoring,
         refit='r2',
         return_train_score = True,
@@ -161,10 +184,12 @@ models = {
             StandardScaler(),
             linear_model.Lasso(max_iter=1000)
         ),
-        param_grid={"lasso__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
-                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,10),
+        param_grid={
+                    #"lasso__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
+                    "lasso__alpha": np.arange(1,2,1),
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,6),
                     "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans'],
-                    "polynomialfeaturesdf__degree" : [2,3]
+                    "polynomialfeaturesdf__degree" : [2]
                     },
         scoring=scoring,
         refit='r2',
@@ -186,9 +211,9 @@ models = {
         ),
         param_grid={"elasticnet__alpha": np.concatenate((np.arange(0.1,1,0.1),np.arange(1,20,1))),
                     "elasticnet__l1_ratio": np.arange(0,1.1,0.1),
-                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,10),
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,6),
                     "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans'],
-                    "polynomialfeaturesdf__degree" : [2,3]
+                    "polynomialfeaturesdf__degree" : [2]
                     },
         scoring=scoring,
         refit='r2',
@@ -209,7 +234,7 @@ models = {
             kernel_ridge.KernelRidge(kernel='polynomial')),
         param_grid={'kernelridge__alpha': list(np.arange(0.1,3,0.1)),
                     'kernelridge__degree': list(np.arange(2,5,1)),
-                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,10),
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,6),
                     "kbinsdiscretizerwithnames__strategy": ['uniform', 'quantile', 'kmeans']
                     },
         scoring=scoring,

@@ -55,7 +55,81 @@ class PolynomialFeaturesDF(PolynomialFeatures):
     def get_feature_names_out(self, input_features = None):
         return super().get_feature_names_out()
     
+class  CreateInteractions(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        super().__init__()
+        self.feature_names_in_ = []
+        self.n_features_in_ = 0
+        
+        self.n_cat_f = 0
+        self.n_num_f = 0
+        self.n_bin_num_f = 0
+        self.n_nonbin_num_f = 0
+        
+        self.categorical_features = {}
+        self.numerical_features = {}
+        self.binary_numerical_features = {}
+        self.nonbinary_numerical_features = {}
+        
+        self.cat_cols = []
+        self.num_cols = []
+        self.bin_num_cols = []
+        self.nonbin_num_cols = []
+    def fit(self, X, y=None):
+        self.categorical_features = { n: t for n, t in X.dtypes.to_dict().items() if t in [ np.dtype('O') ]}
+        self.numerical_features = { n: t for n, t in X.dtypes.to_dict().items() if t not in [ np.dtype('O') ]}
+ 
+        self.cat_cols = list(self.categorical_features.keys())
+        self.num_cols = list(self.numerical_features.keys())
+        self.n_cat_f = len(self.cat_cols)
+        self.n_num_f = len(self.num_cols)
+        
+        for num_col in self.num_cols:
+            is_bin = True
+            for val in X[num_col]:
+                if (np.abs(1-val) > 1e-3) and (np.abs(val) > 1e-3):
+                    is_bin = False
+            if is_bin:
+                self.bin_num_cols.append(num_col)
+            else:
+                self.nonbin_num_cols.append(num_col)
+        
+        self.n_bin_num_f = len(self.bin_num_cols)
+        self.n_nonbin_num_f = len(self.nonbin_num_cols)
+        
+        self.binary_numerical_features = { n: t for n, t in X.dtypes.to_dict().items() if n in self.bin_num_cols}
+        self.nonbinary_numerical_features = { n: t for n, t in X.dtypes.to_dict().items() if n in self.nonbin_num_cols}
+        
+        self.feature_names_in_ = np.array(X.columns, dtype=object)
+        self.n_features_in_ = len(self.feature_names_in_)
+        return self
+        
+    def transform(self, X, y=None):
+        X_t = pd.DataFrame(data=np.zeros((len(X),self.n_cat_f + self.n_num_f + self.n_nonbin_num_f * self.n_bin_num_f + int((self.n_bin_num_f*(self.n_bin_num_f - 1))/2))), columns=self.get_feature_names_out())
 
+        X_t[self.cat_cols] = X[self.cat_cols]
+        X_t[self.num_cols] = X[self.num_cols]
+        for num_col in self.nonbin_num_cols:
+            for cat_col in self.bin_num_cols:
+                X_t[f"{num_col} {cat_col}"] = X[num_col]*X[cat_col]
+
+        for i in range(len(self.bin_num_cols)):
+            for j in range(i+1,len(self.bin_num_cols)):
+                X_t[f"{self.bin_num_cols[i]} {self.bin_num_cols[j]}"] = X[self.bin_num_cols[i]]*X[self.bin_num_cols[j]]
+        
+        return X_t
+           
+    def get_feature_names_out(self, input_features = None):
+        # num with categorical
+        # categorical with categorical
+        cols = []
+        for num_col in self.nonbin_num_cols:
+            for cat_col in self.bin_num_cols:
+                cols.append(f"{num_col} {cat_col}")
+        for i in range(len(self.bin_num_cols)):
+            for j in range(i+1,len(self.bin_num_cols)):
+                cols.append(f"{self.bin_num_cols[i]} {self.bin_num_cols[j]}")
+        return np.array(self.cat_cols + self.num_cols + cols, dtype=object)
     
 class TypeConverter(BaseEstimator, TransformerMixin):
     def __init__(self, variables = []):
