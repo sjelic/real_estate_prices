@@ -54,7 +54,7 @@ def fit_and_save_all_models(data_path = os.path.join(DATA_DIR,'hp_ljubljana_new_
 
 # fit_and_save_model("Lasso Polynomial Regression")
 if __name__ == '__main__':
-    fit_and_save_model(sys.argv[1])
+    fit_and_save_all_models()
 
 
     
