@@ -5,10 +5,14 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
 from splitter import StratifiedRegressionSplit
 from scoring import scoring
-from preprocess  import PolynomialFeaturesDF, KBinsDiscretizerWithNames, CreateInteractions
+from preprocess  import PolynomialFeaturesDF, KBinsDiscretizerWithNames, CreateInteractions, KBinsDiscretizerWithNamesOnlyCategorical
 np.random.seed(0)
 from preprocess import OneHotEncoderOnlyCategorical, PolynomialFeaturesDF, SparseModelFeatureSelector
-from sklearn.ensemble import AdaBoostRegressor
+from sklearn.ensemble import AdaBoostRegressor, GradientBoostingRegressor, RandomForestRegressor
+from sklearn.svm import SVR
+from sklearn.linear_model import Lars
+from sklearn.decomposition import PCA
+
 import os
 DATA_DIR = './data'
 MODEL_PATH = './models'
@@ -84,7 +88,8 @@ models = {
          estimator=make_pipeline(
                 OneHotEncoderOnlyCategorical(),
                 StandardScaler(),
-                ensemble.RandomForestRegressor(
+                PCA(),
+                RandomForestRegressor(
                                         bootstrap=True,
                                         max_features= 16,
                                         min_samples_split = 4,
@@ -92,11 +97,11 @@ models = {
                                         oob_score=True,
                                         n_jobs=-1,
                                         random_state = 0,
-                                        n_estimators=500,
+                                        n_estimators=40,
                                         max_samples = 0.7
             )
         ),
-        param_grid={},
+        param_grid={'pca__n_components': np.arange(5,20,5)},
         scoring=scoring,
         refit='r2',
         return_train_score = True,
@@ -223,6 +228,30 @@ models = {
         n_jobs=-1
         )
     },
+    'Lasso Interaction Only Regression' : 
+    {
+        'fitting_pipline':  GridSearchCV(
+        estimator=make_pipeline(
+            KBinsDiscretizerWithNamesOnlyCategorical(
+                            encode='onehot-dense',
+                            random_state=0),
+            OneHotEncoderOnlyCategorical(),
+            PolynomialFeaturesDF(degree = 2, interaction_only=True, include_bias = False),
+            StandardScaler(),
+            linear_model.Lasso(max_iter=300)
+        ),
+        param_grid={
+                    "lasso__alpha": np.arange(4,5,1),
+                    "kbinsdiscretizerwithnamesonlycategorical__n_bins": np.arange(1,11,1),
+                    "kbinsdiscretizerwithnamesonlycategorical__strategy": ['quantile']
+                    },
+        scoring=scoring,
+        refit='r2',
+        return_train_score = True,
+        cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
+        n_jobs=-1
+        )
+    },
     'ElasticNet Interaction Regression' : {
         'fitting_pipline':  GridSearchCV(
         estimator=make_pipeline(
@@ -298,5 +327,94 @@ models = {
         n_jobs=-1
         )
         
+    },
+    'GradientBoosting Regression': {
+        'fitting_pipline': GridSearchCV(
+         estimator=make_pipeline(
+                OneHotEncoderOnlyCategorical(),
+                CreateInteractions(),
+                StandardScaler(),
+                GradientBoostingRegressor(
+                                        loss='squared_error',
+                                        learning_rate= 0.05,
+                                        n_estimators=500
+                                        
+            )
+        ),
+        param_grid={},
+        scoring=scoring,
+        refit='r2',
+        return_train_score = True,
+        cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
+        n_jobs=-1
+        )
+    },
+    'Support Vector Regression' : {
+        'fitting_pipline':  GridSearchCV(
+        estimator=make_pipeline(
+            KBinsDiscretizerWithNames(
+                            encode='onehot-dense',
+                            random_state=0),
+            OneHotEncoderOnlyCategorical(),
+            StandardScaler(),
+            SVR(kernel='poly')
+            ),
+        param_grid={'svr__epsilon': np.arange(0.05,0.2,0.05),
+                    'svr__C': np.arange(1,4,1)
+                    },
+        scoring=scoring,
+        refit='r2',
+        return_train_score=True,
+        cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
+        n_jobs=-1
+        )
+        
+    },
+    'LARS' : {
+        'fitting_pipline':  GridSearchCV(
+        estimator=make_pipeline(
+            KBinsDiscretizerWithNames(
+                            encode='onehot-dense',
+                            random_state=0),
+            OneHotEncoderOnlyCategorical(),
+            CreateInteractions(),
+            StandardScaler(),
+            Lars()
+            ),
+        param_grid={'lars__n_nonzero_coefs': np.arange(500,700,100)
+                    },
+        scoring=scoring,
+        refit='r2',
+        return_train_score=True,
+        cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
+        n_jobs=-1
+        )
+        
+    },
+    'Lasso Interaction Regression with PCA' : 
+    {
+        'fitting_pipline':  GridSearchCV(
+        estimator=make_pipeline(
+            KBinsDiscretizerWithNames(
+                            encode='onehot-dense',
+                            random_state=0),
+            OneHotEncoderOnlyCategorical(),
+            CreateInteractions(),
+            StandardScaler(),
+            PCA(),
+            linear_model.Lasso(max_iter=1000)
+        ),
+        param_grid={
+                    "lasso__alpha": np.arange(4.2,4.3,0.1),
+                    "kbinsdiscretizerwithnames__n_bins": np.arange(2,3,1),
+                    "kbinsdiscretizerwithnames__strategy": ['quantile'],
+                    "pca__n_components": np.arange(10,11,1)
+                    },
+        scoring=scoring,
+        refit='r2',
+        return_train_score = True,
+        cv=StratifiedRegressionSplit(n_splits=10, n_bins = 10, test_size=0.3, random_state=0),
+        n_jobs=-1
+        )
     }
 }
