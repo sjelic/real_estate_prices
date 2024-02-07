@@ -131,33 +131,30 @@ Although deep learning techniques have developed rapidly in the last decade, the
 
 \section{Models}
 \section{Linear regression}
-A linear regression is a basic method and usual building block of other machine learning algorithms where some random variables $Y$, usually knows as target, is expressed as a linear combination of random variabels $X_i$, $i\in\{1,\ldots, d\}$, known as covariates. In this paper we use linear regression with basis function expansion under the following assumptions:
+Linear regression is a fundamental method and a common building block of other machine learning algorithms in which a random variable $Y$ (i.e., the target) is expressed as a linear combination of random variables $X_i$, $i\in\{1,\ldots, d\}$, called covariates. In this paper, we use linear regression with basis function expansion under the following assumptions:
 
 \begin{itemize}
-  \item target $Y$ is equals linear combination of $X_i$, $i\in\{1,\ldots, d\}$, plus some (random) residual $\varepsilon$ i.e.
+  \item the target $Y$ is equal to a linear combination of $X_i$, $i\in\{1,\ldots, d\}$, plus a (random) residual $\varepsilon$, i.e.
   \begin{equation}
     Y = \sum_{i=1}^d w_i \phi(X_i) + \varepsilon,
   \end{equation}
-  \item residual  
-        $$\varepsilon = Y - \sum_{i=1}^d w_iX_i $$
-        is normally distributed with zero mean and constant variance $\sigma^2$, i.e $\varepsilon\sim \mathcal{N}(0,\sigma^2)$
-  
-  
-  where $w_i\in\mathbb{R}$, $i\in\{1,\ldots d\}$, $d\in \mathbb{N}$
+  \item residual $$\varepsilon = Y - \sum_{i=1}^d w_iX_i $$
+  is normally distributed with mean zero and constant variance $\sigma^2$, i.e. $\varepsilon\sim \mathcal{N}(0,\sigma^2)$ where $w_i\in\mathbb{R}$, $i\in\{1,\ldots d\}$, $d\in \mathbb{N}$.
 \end{itemize}
+
 \subsection{Lasso}
-In the case of large number of predictors (i.e. covariates) we want to select the most appropriate subset of feature. LASSO \cite{tibshiraniRegressionShrinkageSelection1996} <(least absolute shrinkage and selection operator) is a regression method where mean squared error and penalized sum of absolute values of regression parameters is minimized
+Although we do not start with a large number of predictors to use LASSo as feature selector and predictor at the same time, in some approaches we create a large number of predictors by introducing new dicretisized and interaction variables. In the case of large number of predictors (i.e. covariates) we want to select the most appropriate subset of feature. LASSO \cite{tibshiraniRegressionShrinkageSelection1996} <(least absolute shrinkage and selection operator) is a regression method where mean squared error and penalized sum of absolute values of regression parameters is minimized
+
+
+
+The solution of \ref{eq:lasso_obj}
+Usually, when we want a sparse solution in case of high dimensional data, lasso regression is applied. Here, we assume that parameters $w_j$, $j\in {0,\ldots, d}$ come from Laplacian zero-mean distribution where the most of probability mass is put around zero. In a such way, we aim to select sparse solution. Based on that idea, estimators for lasso parameters are obtained by solving optimization problem were we want to penalize objective function (i.e. mean squared error) regularized with the $l_1$-norm of vector of parameters as follows:
 
 \begin{equation}\label{eq:lasso_obj}
   \min_{w\in \mathbb{R}^{d+1}} \sum_{i=1}^N(y_i-w_i^Tx_i)^2 + \lambda\sum_{i=1}^{d+1}|w_i|,
 \end{equation}
 
 for some $\lambda>0$.
-
-The solution of \ref{eq:lasso_obj}
-Usually, when we want a sparse solution in case of high dimensional data, lasso regression is applied. Here, we assume that parameters $w_j$, $j\in {0,\ldots, d}$ come from Laplacian zero-mean distribution where the most of probability mass is put around zero. In a such way, we aim to select sperse solution. Based on that idea, estimators for lasso parameters are obrained by solving optimization problem were we want to penalize objective function (i.e. mean squared error) regilarized with the $l_1$-norm of vector of parameters as follows:
-
-
 
 
 This objective loss yields sparse solution where all features with $w_i>0$ are selected. Obviously, this apporach incorporates model selection into regression problem.
