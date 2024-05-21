@@ -145,7 +145,10 @@ Linear regression is a fundamental method and a common building block of other m
   is normally distributed with mean zero and constant variance $\sigma^2$, i.e. $\varepsilon\sim \mathcal{N}(0,\sigma^2)$ where $w_i\in\mathbb{R}$, $i\in\{1,\ldots d\}$, $d\in \mathbb{N}$.
 \end{itemize}
 
-\subsection{Lasso}
+
+
+\subsection{Ridge Regression}
+\subsection{Lasso Regression}
 Although we do not start with a large number of predictors to use LASSo as feature selector and predictor at the same time, in some approaches we create a large number of predictors by introducing new dicretisized and interaction variables. In the case of large number of predictors (i.e. covariates) we want to select the most appropriate subset of feature. LASSO \cite{tibshiraniRegressionShrinkageSelection1996} <(least absolute shrinkage and selection operator) is a regression method where mean squared error and penalized sum of absolute values of regression parameters is minimized
 
 
@@ -162,15 +165,39 @@ for some $\lambda>0$.
 
 This objective loss yields sparse solution where all features with $w_i>0$ are selected. Obviously, this apporach incorporates model selection into regression problem.
 
-\subsection{ElasticNet}
+\subsection{ElasticNet Regression}
 
-Elastic approach generalizes 
+\subsection{AdaBoost Lasso Regression}
+
+\subsection{RandomForest Regression}
+
+\subsection{Kernel Ridge Regression}
+
+
+
+\section{Interaction models}
+
+\subsection{Machine learning pipeline}
+
+\begin{figure}
+  \includegraphics[width=0.45\textwidth]{ml_pipeline.pdf}
+\end{figure}
+
+Continues features from original feature space are discretized to $3$ bins using one-hot encoding technique with quantile strategy. At the second step,  
+
+\subsection{Interpretation}
+
+
+
 \section{Results}
 
+
+\subsection{Experiments}
+
 \subsection{Model selection}
-In the  previous section we found that the elastic net outperformed other approaches that used regularization and model selection procedures. In the seminal papar of Zou and Hastie elastic net approach is presented as  a new regularization and model selection method. This approach compromises between ridge and lasso regressions, that serve as regularization and model selection approaches. Since lasso tends to select one feature from group of correlated features, elastic net approach tends to include or exclude the entire group of correlated features. Our statistical analysis in this section uses laso as model selection procedure 
+In the  previous section we found that the elastic net outperformed other approaches that used regularization and model selection procedures. In the seminal papar of Zou and Hastie elastic net approach is presented as  a new regularization and model selection method. This approach compromises between ridge and lasso regressions, that serve as regularization and model selection approaches. Since lasso tends to select one feature from group of correlated features, elastic net approach tends to include or exclude the entire group of correlated features. Our statistical analysis in this section uses lasso as model selection procedure 
 
-
+\subsection{Analysis}
 \newpage
 \subsection{Statistical analysis of regression coefficients}
 
@@ -209,6 +236,9 @@ In the  previous section we found that the elastic net outperformed other approa
   \caption{}
   \label{tab:my-table}\\
   \end{longtable}}
+
+  \section{Conclusion}
+
 
 \printbibliography
 
