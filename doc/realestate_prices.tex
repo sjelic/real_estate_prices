@@ -15,11 +15,12 @@
 \usepackage{graphicx}
 \usepackage{longtable}
 \usepackage{biblatex}
-
+\usepackage{multirow}
+\usepackage{ltxtable}
+\usepackage{threeparttable}
 
 
 \addbibresource{refs.bib}
-
 
 \graphicspath{ {./images/} }
 
@@ -74,7 +75,9 @@ In this paper we evaluate linear regression models for real estate price predict
 
 
 % keywords can be removed
-%\keywords{First keyword \and Second keyword \and More}
+\keywords{Lasso Regression \and ElasticNet regression \and Interaction variables \and kernel methods}
+
+
 \section{Introduction}
 Although deep learning techniques have developed rapidly in the last decade, the application of linear methods in domains where predictors can be selected directly from the feature space remains challenging. The main goal of this paper is to provide an overview and explore the limitations of linear regression methods for real estate price prediction. Linear methods are simple and informative and provide better insight into the dependence of the target on the covariates. Statistical tests for significance of coefficients and estimation of confidence intervals can be performed for these methods.
 \section{Data}
@@ -167,21 +170,45 @@ Elastic approach generalizes
 \subsection{Model selection}
 In the  previous section we found that the elastic net outperformed other approaches that used regularization and model selection procedures. In the seminal papar of Zou and Hastie elastic net approach is presented as  a new regularization and model selection method. This approach compromises between ridge and lasso regressions, that serve as regularization and model selection approaches. Since lasso tends to select one feature from group of correlated features, elastic net approach tends to include or exclude the entire group of correlated features. Our statistical analysis in this section uses laso as model selection procedure 
 
-\subsection{Statistical analysis of regression coefficients}
-\begin{table}[!ht]
-  \centering
-  \begin{tabular}{|l|l|}
-  \hline
-      best\_alpha & 1.9999999999999998 \\
-      test\_mean\_r2 & 0.32257724292143136 \\
-      test\_std\_r2 & 0.014647250999858974 \\
-      test\_mean\_cod & -16.365785033853307 \\
-      test\_std\_cod & 0.356276388948974 \\
-      test\_mean\_mape & -15.177178021189741 \\
-      test\_std\_mape & 0.353036390912289 \\
-  \end{tabular}
-\end{table}
 
+\newpage
+\subsection{Statistical analysis of regression coefficients}
+
+
+% Please add the following required packages to your document preamble:
+
+% Note: It may be necessary to compile the document several times to get a multi-page table to line up properly
+\def\arraystretch{1.8}
+\scriptsize{
+\begin{longtable}[c]{|p{2.3cm}|ll|ll|ll|ll|ll|ll|}
+  \hline
+  \multicolumn{1}{|c|}{\multirow{2}{*}{\textbf{Method}}}      & \multicolumn{2}{c|}{$r^2$}            & \multicolumn{2}{c|}{\textbf{RMSE}}              & \multicolumn{2}{c|}{\textbf{COD}}           & \multicolumn{2}{c|}{\textbf{MAPE}}          & \multicolumn{2}{c|}{\textbf{MAE}}               & \multicolumn{2}{c|}{\textbf{MPE}}             \\ \cline{2-13} 
+  \multicolumn{1}{|c|}{}                             & \multicolumn{1}{l|}{TRAIN} & TEST  & \multicolumn{1}{l|}{TRAIN}   & TEST    & \multicolumn{1}{l|}{TRAIN} & TEST  & \multicolumn{1}{l|}{TRAIN} & TEST  & \multicolumn{1}{l|}{TRAIN}   & TEST    & \multicolumn{1}{l|}{TRAIN}  & TEST   \\ \hline
+  \endhead
+  %
+  Ridge                 & \multicolumn{1}{l|}{0.344} & 0.329 & \multicolumn{1}{l|}{478.959} & 483.544 & \multicolumn{1}{l|}{0.149} & 0.151 & \multicolumn{1}{l|}{0.148} & 0.150 & \multicolumn{1}{l|}{352.127} & 353.801 & \multicolumn{1}{l|}{0.002}  & 0.004  \\
+  Regression& \multicolumn{1}{l|}{0.009} & 0.021 & \multicolumn{1}{l|}{3.471}   & 8.412   & \multicolumn{1}{l|}{0.001} & 0.003 & \multicolumn{1}{l|}{0.001} & 0.003 & \multicolumn{1}{l|}{1.861}   & 4.530   & \multicolumn{1}{l|}{0.000}  & 0.003  \\ \hline
+  Lasso                  & \multicolumn{1}{l|}{0.341} & 0.328 & \multicolumn{1}{l|}{480.046} & 483.951 & \multicolumn{1}{l|}{0.149} & 0.151 & \multicolumn{1}{l|}{0.148} & 0.150 & \multicolumn{1}{l|}{352.236} & 353.943 & \multicolumn{1}{l|}{0.001}  & 0.003  \\
+  Regression & \multicolumn{1}{l|}{0.009} & 0.021 & \multicolumn{1}{l|}{3.577}   & 8.518   & \multicolumn{1}{l|}{0.001} & 0.003 & \multicolumn{1}{l|}{0.001} & 0.003 & \multicolumn{1}{l|}{1.866}   & 4.583   & \multicolumn{1}{l|}{0.000}  & 0.003  \\ \hline
+  ElasticNet            & \multicolumn{1}{l|}{0.344} & 0.329 & \multicolumn{1}{l|}{479.010} & 483.565 & \multicolumn{1}{l|}{0.149} & 0.151 & \multicolumn{1}{l|}{0.148} & 0.150 & \multicolumn{1}{l|}{352.236} & 353.943 & \multicolumn{1}{l|}{0.002}  & 0.004  \\
+  Regression& \multicolumn{1}{l|}{0.009} & 0.021 & \multicolumn{1}{l|}{3.472}   & 8.451   & \multicolumn{1}{l|}{0.001} & 0.003 & \multicolumn{1}{l|}{0.001} & 0.003 & \multicolumn{1}{l|}{1.866}   & 4.583   & \multicolumn{1}{l|}{0.000}  & 0.003  \\ \hline
+  AdaBoost Lasso & \multicolumn{1}{l|}{0.374} & 0.359 & \multicolumn{1}{l|}{467.605} & 472.499 & \multicolumn{1}{l|}{0.143} & 0.144 & \multicolumn{1}{l|}{0.142} & 0.143 & \multicolumn{1}{l|}{341.793} & 344.515 & \multicolumn{1}{l|}{-0.001} & -0.001 \\
+  Regression & \multicolumn{1}{l|}{0.008} & 0.017 & \multicolumn{1}{l|}{3.189}   & 7.240   & \multicolumn{1}{l|}{0.001} & 0.002 & \multicolumn{1}{l|}{0.001} & 0.002 & \multicolumn{1}{l|}{1.736}   & 3.904   & \multicolumn{1}{l|}{0.001}  & 0.003  \\ \hline
+  RandomForest & \multicolumn{1}{l|}{0.801} & \textbf{0.440} & \multicolumn{1}{l|}{263.812} & 441.569 & \multicolumn{1}{l|}{0.077} & 0.132 & \multicolumn{1}{l|}{0.077} & 0.132 & \multicolumn{1}{l|}{183.470} & 317.741 & \multicolumn{1}{l|}{-0.008} & -0.001 \\
+  Regression & \multicolumn{1}{l|}{0.004} & 0.019 & \multicolumn{1}{l|}{2.918}   & 8.391   & \multicolumn{1}{l|}{0.001} & 0.002 & \multicolumn{1}{l|}{0.001} & 0.002 & \multicolumn{1}{l|}{1.474}   & 5.169   & \multicolumn{1}{l|}{0.001}  & 0.004  \\ \hline
+  Gradient Boost & \multicolumn{1}{l|}{0.669} & \textbf{0.437} & \multicolumn{1}{l|}{339.904} & 443.019 & \multicolumn{1}{l|}{0.106} & 0.132 & \multicolumn{1}{l|}{0.106} & 0.133 & \multicolumn{1}{l|}{254.177} & 319.555 & \multicolumn{1}{l|}{-0.005} & 0.000  \\
+  Regression & \multicolumn{1}{l|}{0.005} & 0.021 & \multicolumn{1}{l|}{2.691}   & 8.950   & \multicolumn{1}{l|}{0.001} & 0.003 & \multicolumn{1}{l|}{0.001} & 0.003 & \multicolumn{1}{l|}{1.929}   & 5.439   & \multicolumn{1}{l|}{0.000}  & 0.004  \\ \hline
+  Kernel Ridge & \multicolumn{1}{l|}{0.522} & 0.407 & \multicolumn{1}{l|}{408.674} & 454.338 & \multicolumn{1}{l|}{0.123} & 0.137 & \multicolumn{1}{l|}{0.123} & 0.137 & \multicolumn{1}{l|}{297.548} & 329.601 & \multicolumn{1}{l|}{-0.002} & 0.000  \\
+  Regression & \multicolumn{1}{l|}{0.007} & 0.019 & \multicolumn{1}{l|}{3.107}   & 7.829   & \multicolumn{1}{l|}{0.001} & 0.003 & \multicolumn{1}{l|}{0.001} & 0.002 & \multicolumn{1}{l|}{1.944}   & 3.902   & \multicolumn{1}{l|}{0.000}  & 0.005  \\ \hline
+  Ridge Interaction & \multicolumn{1}{l|}{0.720} & 0.409 & \multicolumn{1}{l|}{312.595} & 453.796 & \multicolumn{1}{l|}{0.095} & 0.138 & \multicolumn{1}{l|}{0.096} & 0.138 & \multicolumn{1}{l|}{228.302} & 331.921 & \multicolumn{1}{l|}{-0.006} & 0.000  \\
+  Regression & \multicolumn{1}{l|}{0.004} & 0.014 & \multicolumn{1}{l|}{2.342}   & 6.026   & \multicolumn{1}{l|}{0.001} & 0.002 & \multicolumn{1}{l|}{0.001} & 0.002 & \multicolumn{1}{l|}{1.836}   & 3.944   & \multicolumn{1}{l|}{0.000}  & 0.004  \\ \hline
+  ElasticNet Interaction & \multicolumn{1}{l|}{0.618} & \textbf{0.428} & \multicolumn{1}{l|}{365.469} & 446.385 & \multicolumn{1}{l|}{0.111} & 0.134 & \multicolumn{1}{l|}{0.111} & 0.134 & \multicolumn{1}{l|}{267.477} & 324.818 & \multicolumn{1}{l|}{-0.006} & -0.003 \\
+  Regression & \multicolumn{1}{l|}{0.004} & 0.012 & \multicolumn{1}{l|}{2.311}   & 5.555   & \multicolumn{1}{l|}{0.001} & 0.002 & \multicolumn{1}{l|}{0.001} & 0.001 & \multicolumn{1}{l|}{1.798}   & 3.098   & \multicolumn{1}{l|}{0.000}  & 0.004  \\ \hline
+  Lasso Interaction & \multicolumn{1}{l|}{0.634} & 0.415 & \multicolumn{1}{l|}{357.560} & 451.419 & \multicolumn{1}{l|}{0.110} & 0.136 & \multicolumn{1}{l|}{0.110} & 0.137 & \multicolumn{1}{l|}{263.422} & 329.336 & \multicolumn{1}{l|}{-0.005} & -0.001 \\
+  Regression & \multicolumn{1}{l|}{0.004} & 0.015 & \multicolumn{1}{l|}{2.147}   & 6.251   & \multicolumn{1}{l|}{0.001} & 0.002 & \multicolumn{1}{l|}{0.001} & 0.001 & \multicolumn{1}{l|}{1.640}   & 3.885   & \multicolumn{1}{l|}{0.000}  & 0.004  \\ \hline
+  \caption{}
+  \label{tab:my-table}\\
+  \end{longtable}}
 
 \printbibliography
 
