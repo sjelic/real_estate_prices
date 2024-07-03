@@ -133,6 +133,7 @@ Although deep learning techniques have developed rapidly in the last decade, the
 
 
 \section{Models}
+
 \section{Linear regression}
 Linear regression is a fundamental method and a common building block of other machine learning algorithms in which a random variable $Y$ (i.e., the target) is expressed as a linear combination of random variables $X_i$, $i\in\{1,\ldots, d\}$, called covariates. In this paper, we use linear regression with basis function expansion under the following assumptions:
 
@@ -149,7 +150,7 @@ Linear regression is a fundamental method and a common building block of other m
 
 \subsection{Ridge Regression}
 \subsection{Lasso Regression}
-Although we do not start with a large number of predictors to use LASSo as feature selector and predictor at the same time, in some approaches we create a large number of predictors by introducing new dicretisized and interaction variables. In the case of large number of predictors (i.e. covariates) we want to select the most appropriate subset of feature. LASSO \cite{tibshiraniRegressionShrinkageSelection1996} <(least absolute shrinkage and selection operator) is a regression method where mean squared error and penalized sum of absolute values of regression parameters is minimized
+Although we do not start with a large number of predictors to use LASSo as feature selector and predictor at the same time, in some approaches we create a large number of predictors by introducing new discretized and interaction variables. In the case of large number of predictors (i.e. covariates) we want to select the most appropriate subset of feature. LASSO \cite{tibshiraniRegressionShrinkageSelection1996} <(least absolute shrinkage and selection operator) is a regression method where mean squared error and penalized sum of absolute values of regression parameters is minimized
 
 
 
@@ -173,17 +174,21 @@ This objective loss yields sparse solution where all features with $w_i>0$ are s
 
 \subsection{Kernel Ridge Regression}
 
-
-
-\section{Interaction models}
-In order to better understand impact of features to target variables we introduce interaction models. These models are kernel regression models over a transformed set of input features. This set consists of one-hot encoded set categorical features and one-hot encoded set of discretized continuous features. Kernels are used to model nonlinear relationship between input features and output target variable. In this section we give a brief overview of kernel regression used in this article.
-Function $\kappa:\mathbb{R}^{n}\times\mathbb{R}^n\rightarrow\mathbb{R}$ is called kernel if:
+ We considered kernel regression that introduce nonlinear relationships between input features to better understand impact of impact features to target variable. The original set of features is transformed as follows:\begin{itemize}
+  \item categorical variables are one-hot encoded,
+  \item continuous variables are discretized and obtained discrete variables are one-hot encoded.
+\end{itemize}
+This transformation yields different bins/intervals of continuos variables that ensure easier interpretation of regression coefficient (given in Experimental section) related to products of binary variables. In a such way 
+. It is well known that function $\kappa:\mathbb{R}^{n}\times\mathbb{R}^n\rightarrow\mathbb{R}$ is called kernel if:
 \begin{itemize}
   \item $\kappa(x,x')\geq 0$, for all $x,x'\in \mathbb{R}^n$,
   \item $\kappa(x,x') = \kappa(x',x)$ , for all $x,x'\in \mathbb{R}^n$.
 \end{itemize}
 
-Usually, kernel functions are view as similarity measures between two real vectors $x$ and $x'$. We will particularly focus on Mercel kernels whose Gramm matrix 
+Usually, kernel functions are view as similarity measures between two real vectors $x$ and $x'$. Ususal 
+
+
+Some of examples We will particularly focus on Mercel kernels whose Gramm matrix 
 
 \begin{equation}
   K(x_1,\ldots,x_n) = \left[\begin{array}{ccc}
@@ -196,6 +201,9 @@ Usually, kernel functions are view as similarity measures between two real vecto
 
 is positive definite for any input vectors $x_1,\ldots,x_n$.
 
+
+
+\section{Interaction models}
 
 
 \begin{figure}
