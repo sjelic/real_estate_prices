@@ -176,8 +176,27 @@ This objective loss yields sparse solution where all features with $w_i>0$ are s
 
 
 \section{Interaction models}
-In order to better understand impact of features to target variables we introduce interaction models. These models are kernel regression models over a transformed set of input features. This set consists of one-hot encoded set categorical features and one-hot encoded set of discretized continuous features. By introducing kernels  
-\subsection{Machine learning pipeline}
+In order to better understand impact of features to target variables we introduce interaction models. These models are kernel regression models over a transformed set of input features. This set consists of one-hot encoded set categorical features and one-hot encoded set of discretized continuous features. Kernels are used to model nonlinear relationship between input features and output target variable. In this section we give a brief overview of kernel regression used in this article.
+Function $\kappa:\mathbb{R}^{n}\times\mathbb{R}^n\rightarrow\mathbb{R}$ is called kernel if:
+\begin{itemize}
+  \item $\kappa(x,x')\geq 0$, for all $x,x'\in \mathbb{R}^n$,
+  \item $\kappa(x,x') = \kappa(x',x)$ , for all $x,x'\in \mathbb{R}^n$.
+\end{itemize}
+
+Usually, kernel functions are view as similarity measures between two real vectors $x$ and $x'$. We will particularly focus on Mercel kernels whose Gramm matrix 
+
+\begin{equation}
+  K(x_1,\ldots,x_n) = \left[\begin{array}{ccc}
+    \kappa(x_1,x_1)& \cdots & \kappa(x_1,x_n)\\
+    \kappa(x_2,x_1)& \cdots & \kappa(x_2,x_n)\\
+    \vdots & \vdots & \vdots\\
+    \kappa(x_n,x_1)& \cdots & \kappa(x_n,x_n)
+  \end{array}\right]
+\end{equation}
+
+is positive definite for any input vectors $x_1,\ldots,x_n$.
+
+
 
 \begin{figure}
   \includegraphics[width=0.45\textwidth]{ml_pipeline.pdf}
